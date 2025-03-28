@@ -8,4 +8,6 @@ public interface CardapioDAO {
     void atualizar(Produto produto);
     void remover(int id);
     List<Produto> listarTodos();
+    List<String>listarHistoricoPedidos();
+    void adicionarHistoricoPedido(Pedido pedido, String pagamentoSelecionado);
 }

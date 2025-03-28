@@ -141,4 +141,39 @@ public class CardapioDAOImpl implements CardapioDAO {
         }
         return produtos;
     }
+
+    public void adicionarHistoricoPedido(Pedido pedido, String formaPagamento) {
+        String produtos = pedido.listarProdutos(); // Obtém a lista de produtos do pedido
+        double total = pedido.calcularTotal(); // Calcula o total do pedido
+        String sql = "INSERT INTO historico_pedidos (produtos, total, forma_pagamento) VALUES (?, ?, ?)";
+
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, produtos);
+            pstmt.setDouble(2, total);
+            pstmt.setString(3, formaPagamento);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<String> listarHistoricoPedidos() {
+        List<String> pedidos = new ArrayList<>();
+        String sql = "SELECT * FROM historico_pedidos ORDER BY data DESC";
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                String produtos = rs.getString("produtos");
+                double total = rs.getDouble("total");
+                String formaPagamento = rs.getString("forma_pagamento");
+                String data = rs.getString("data");
+                pedidos.add("=====================================================================================" + produtos + "Pagamento: " + formaPagamento + ", \nData: " + data);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return pedidos;
+    }
 }
