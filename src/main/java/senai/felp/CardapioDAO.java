@@ -1,4 +1,11 @@
 package senai.felp;
 
-public class CardapioDAO {
+import java.util.List;
+
+public interface CardapioDAO {
+    void adicionar(Produto produto);
+    Produto buscar(int id);
+    void atualizar(Produto produto);
+    void remover(int id);
+    List<Produto> listarTodos();
 }

@@ -1,3 +1,5 @@
+package senai.felp;
+
 public class Bebida extends Produto {
     private final boolean isAlcoolica;
 

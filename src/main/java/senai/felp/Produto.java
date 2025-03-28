@@ -1,3 +1,5 @@
+package senai.felp;
+
 public abstract class Produto {
     protected int id;
     protected String nome;
