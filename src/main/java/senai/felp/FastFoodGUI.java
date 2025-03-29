@@ -92,8 +92,26 @@ public class FastFoodGUI {
         JButton btnSalvar = criarBotao("Salvar", new Color(34, 139, 34)); // Verde
 
         btnSalvar.addActionListener(_ -> {
-            String nome = nomeField.getText();
-            double preco = Double.parseDouble(precoField.getText());
+            String nome = nomeField.getText().trim();
+            String precoStr = precoField.getText().trim();
+
+            if (nome.isEmpty()) {
+                JOptionPane.showMessageDialog(cadastroFrame, "O nome do produto não pode estar vazio.", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            double preco;
+            try {
+                preco = Double.parseDouble(precoStr);
+                if (preco < 0) {
+                    JOptionPane.showMessageDialog(cadastroFrame, "O preço não pode ser negativo.", "Erro", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(cadastroFrame, "Preço inválido. Por favor, insira um número válido.", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             String tipo = (String) tipoBox.getSelectedItem();
 
             if ("Lanche".equals(tipo)) {
@@ -172,12 +190,44 @@ public class FastFoodGUI {
 
     private void atualizarProduto() {
         String idStr = JOptionPane.showInputDialog(frame, "Digite o ID do produto a atualizar:");
-        int id = Integer.parseInt(idStr);
+        if (idStr == null || idStr.trim().isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "ID não pode estar vazio.", "Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int id;
+        try {
+            id = Integer.parseInt(idStr);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(frame, "ID inválido. Por favor, insira um número válido.", "Erro", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         Produto produto = cardapioDAO.buscar(id);
         if (produto != null) {
             String novoNome = JOptionPane.showInputDialog(frame, "Novo nome:", produto.nome);
+            if (novoNome == null || novoNome.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "O nome não pode estar vazio.", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             String novoPrecoStr = JOptionPane.showInputDialog(frame, "Novo preço:", produto.preco);
-            double novoPreco = Double.parseDouble(novoPrecoStr);
+            if (novoPrecoStr == null || novoPrecoStr.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "O preço não pode estar vazio.", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            double novoPreco;
+            try {
+                novoPreco = Double.parseDouble(novoPrecoStr);
+                if (novoPreco < 0) {
+                    JOptionPane.showMessageDialog(frame, "O preço não pode ser negativo.", "Erro", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(frame, "Preço inválido. Por favor, insira um número válido.", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
             if (produto instanceof Lanche) {
                 boolean isVegano = JOptionPane.showConfirmDialog(frame, "É vegano?", "Atualizar", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION;
