@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Pedido {
-    private List<Produto> produtos;
+    private final List<Produto> produtos;
 
     public Pedido() {
         this.produtos = new ArrayList<>();
