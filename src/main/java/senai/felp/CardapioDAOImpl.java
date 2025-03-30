@@ -202,7 +202,12 @@ public class CardapioDAOImpl implements CardapioDAO {
                 String produtos = rs.getString("produtos");
                 String formaPagamento = rs.getString("forma_pagamento");
                 String data = rs.getString("data");
-                pedidos.add("=====================================================================================" + produtos + "Pagamento: " + formaPagamento + " \nData: " + data);
+                String pedidoFormatado = String.format("=================================================\n" +
+                        "Produtos: %s\n" +
+                        "Forma de Pagamento: %s |\n" +
+                        "Data: %s|\n" +
+                        "=================================================\n", produtos, formaPagamento, data);
+                pedidos.add(pedidoFormatado);
             }
         } catch (SQLException e) {
             System.out.println("Erro ao listar Histórico de Pedidos: " + e.getMessage());

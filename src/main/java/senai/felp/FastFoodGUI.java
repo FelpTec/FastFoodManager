@@ -1,10 +1,15 @@
 package senai.felp;
 
+
 import senai.felp.objects.Bebida;
 import senai.felp.objects.Lanche;
 import senai.felp.objects.Pedido;
 import senai.felp.objects.Produto;
 
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
@@ -249,17 +254,48 @@ public class FastFoodGUI {
     private void mostrarPedido() {
         JFrame pedidoFrame = new JFrame("Detalhes do Pedido");
         pedidoFrame.setSize(400, 300);
+        pedidoFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         pedidoFrame.setLayout(new BorderLayout());
 
-        JTextArea textoPedido = new JTextArea();
-        textoPedido.setEditable(false);
-        textoPedido.setText(pedido.listarProdutos());
+        // Cria um JTabbedPane para as abas
+        JTabbedPane tabbedPane = new JTabbedPane();
 
-        JButton btnFinalizarPedido = criarBotao("Finalizar Pedido", new Color(34, 139, 34)); // Verde
+        // Cria o painel para mostrar os produtos do pedido
+        JPanel produtosPanel = new JPanel();
+        produtosPanel.setLayout(new BoxLayout(produtosPanel, BoxLayout.Y_AXIS)); // Layout vertical
+
+        // Adiciona os produtos do pedido ao painel
+        if (pedido.getProdutos().isEmpty()) {
+            produtosPanel.add(new JLabel("Nenhum produto no pedido."));
+        } else {
+            for (Produto produto : pedido.getProdutos()) {
+                produtosPanel.add(new JLabel(produto.toString())); // Adiciona cada produto como um JLabel
+            }
+        }
+
+        // Adiciona o painel de produtos ao JTabbedPane
+        tabbedPane.addTab("Produtos no Pedido", produtosPanel);
+
+        //Adicional o total no Panel de Produtos
+        JLabel totalLabel = new JLabel("\nTotal: R$" + pedido.calcularTotal());
+        produtosPanel.add(totalLabel, BorderLayout.CENTER);
+
+        // Cria o botão "Finalizar Pedido"
+        JButton btnFinalizarPedido = criarBotao("Finalizar Pedido", new Color(34, 139, 34));// Verde
         btnFinalizarPedido.addActionListener(_ -> finalizarPedido(pedidoFrame));
 
-        pedidoFrame.add(new JScrollPane(textoPedido), BorderLayout.CENTER);
+        // Cria o botão "Remover Produto"
+        JButton btnRemoverProduto = criarBotao("Remover Produto", Color.RED); // Vermelho
+        btnRemoverProduto.addActionListener(_ -> removerProdutoDoPedido());
+
+        // Adiciona o JTabbedPane e o botão ao JFrame
+        pedidoFrame.add(tabbedPane, BorderLayout.CENTER);
         pedidoFrame.add(btnFinalizarPedido, BorderLayout.SOUTH);
+        pedidoFrame.add(btnRemoverProduto, BorderLayout.EAST);
+
+
+
+        // Torna o JFrame visível
         pedidoFrame.setVisible(true);
     }
 
@@ -334,6 +370,33 @@ public class FastFoodGUI {
         }
     }
 
+    //Função para remover Produto do Pedido
+    private void removerProdutoDoPedido() {
+        if (pedido.getProdutos().isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Não há produtos no pedido para remover.");
+            return;
+        }
+
+        // Cria uma lista de nomes de produtos para exibir na caixa de diálogo
+        String[] opcoes = pedido.getProdutos().stream()
+                .map(Produto::toString)
+                .toArray(String[]::new);
+
+        // Permite ao usuário selecionar um produto para remover
+        String produtoSelecionado = (String) JOptionPane.showInputDialog(frame, "Selecione um produto para remover:", "Remover Produto", JOptionPane.QUESTION_MESSAGE, null, opcoes, opcoes[0]);
+
+        if (produtoSelecionado != null) {
+            // Encontra o produto correspondente e o remove
+            for (Produto p : pedido.getProdutos()) {
+                if (produtoSelecionado.contains(p.getNome())) {
+                    pedido.getProdutos().remove(p);
+                    JOptionPane.showMessageDialog(frame, "Produto removido do pedido!");
+                    break;
+                }
+            }
+        }
+    }
+
     //Função para Finalizar Pedidos
     private void finalizarPedido(JFrame pedidoFrame) {
         if (pedido.getProdutos().isEmpty()) {
@@ -363,16 +426,65 @@ public class FastFoodGUI {
 
         JTextArea textoHistorico = new JTextArea();
         textoHistorico.setEditable(false);
+        textoHistorico.setFont(new Font("Arial", Font.PLAIN, 12)); // Define a fonte do texto
+        textoHistorico.setLineWrap(true);
+        textoHistorico.setWrapStyleWord(true);
 
         // Carregar histórico de pedidos do banco de dados
         List<String> historico = cardapioDAO.listarHistoricoPedidos();
-        StringBuilder sb = new StringBuilder("Histórico de Pedidos:\n");
+        StringBuilder sb = new StringBuilder();
         for (String pedido : historico) {
             sb.append(pedido).append("\n");
         }
         textoHistorico.setText(sb.toString());
 
-        historicoFrame.add(new JScrollPane(textoHistorico), BorderLayout.CENTER);
+        // Adiciona um JScrollPane para permitir rolagem
+        JScrollPane scrollPane = new JScrollPane(textoHistorico);
+        historicoFrame.add(scrollPane, BorderLayout.CENTER);
+
+        // Botão para Gerar PDF
+        JButton btnGerarPDF = new JButton("Gerar PDF");
+        btnGerarPDF.addActionListener(_ -> gerarRelatorioPDF(historico));
+        historicoFrame.add(btnGerarPDF, BorderLayout.EAST);
+
+        // Botão para fechar a janela
+        JButton btnFechar = new JButton("Fechar");
+        btnFechar.addActionListener(_ -> historicoFrame.dispose());
+        historicoFrame.add(btnFechar, BorderLayout.SOUTH);
+
         historicoFrame.setVisible(true);
+    }
+
+    private void gerarRelatorioPDF(List<String> historico) {
+        String caminhoArquivo = "historico_pedidos.pdf"; // Caminho do arquivo PDF
+        try (PDDocument document = new PDDocument()) {
+            PDPage page = new PDPage();
+            document.addPage(page);
+
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
+            contentStream.setFont(PDType1Font.TIMES_ROMAN, 12);
+            contentStream.beginText();
+            contentStream.newLineAtOffset(50, 750); // Posição inicial do texto
+
+            contentStream.showText("Histórico de Pedidos");
+            contentStream.newLineAtOffset(0, -20); // Nova linha
+            contentStream.showText("======================================");
+            contentStream.newLineAtOffset(0, -20); // Nova linha
+
+            for (String pedido : historico) {
+                contentStream.showText(pedido);
+                contentStream.newLineAtOffset(0, -20); // Nova linha
+                contentStream.showText("======================================");
+                contentStream.newLineAtOffset(0, -20); // Nova linha
+            }
+
+            contentStream.endText();
+            contentStream.close();
+
+            document.save(caminhoArquivo);
+            JOptionPane.showMessageDialog(frame, "Relatório gerado com sucesso: " + caminhoArquivo);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(frame, "Erro ao gerar relatório: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

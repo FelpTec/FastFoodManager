@@ -17,6 +17,7 @@ public class Bebida extends Produto {
 
     @Override
     public String toString() {
-        return "ID: "+ id + " | Bebida: " + nome + " | Preço: R$" + preco + " | Alcoólica: " + (isAlcoolica ? "Sim" : "Não");
+        return String.format("ID: %d | Bebida: %s | Preço: R$%.2f | Alcoólica: %s |",
+                id, nome, preco, (isAlcoolica ? "Sim" : "Não"));
     }
 }

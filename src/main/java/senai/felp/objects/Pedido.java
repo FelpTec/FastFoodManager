@@ -20,10 +20,14 @@ public class Pedido {
 
     public String listarProdutos() {
         StringBuilder lista = new StringBuilder("Produtos no Pedido:\n");
+        lista.append("=================================================\n");
+
         for (Produto p : produtos) {
             lista.append(p.toString()).append("\n");
         }
-        lista.append("\n======================================\nTotal: R$").append(calcularTotal()).append("\n");
+
+        lista.append("=================================================\n");
+        lista.append(String.format("Total: R$%.2f |", calcularTotal())); // Formata o total com duas casas decimais
         return lista.toString();
     }
 

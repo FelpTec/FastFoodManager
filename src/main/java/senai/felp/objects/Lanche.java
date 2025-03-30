@@ -17,6 +17,7 @@ public class Lanche extends Produto {
 
     @Override
     public String toString() {
-        return "ID: "+ id + " | Lanche: " + nome + " | Preço: R$" + preco + " | Vegano: " + (isVegano ? "Sim" : "Não");
+        return String.format("ID: %d | Lanche: %s | Preço: R$%.2f | Vegano: %s |",
+                id, nome, preco, (isVegano ? "Sim" : "Não"));
     }
 }
