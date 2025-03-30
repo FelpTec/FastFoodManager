@@ -1,5 +1,10 @@
 package senai.felp;
 
+import senai.felp.objects.Bebida;
+import senai.felp.objects.Lanche;
+import senai.felp.objects.Pedido;
+import senai.felp.objects.Produto;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
@@ -9,6 +14,7 @@ public class FastFoodGUI {
     private final CardapioDAO cardapioDAO = new CardapioDAOImpl();
     private Pedido pedido = new Pedido();
 
+    //Janela Principal
     public FastFoodGUI() {
         frame = new JFrame("Fast Food Manager");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -22,11 +28,14 @@ public class FastFoodGUI {
         JPanel gerenciamentoPanel = new JPanel();
         gerenciamentoPanel.setLayout(new GridLayout(3, 1, 10, 10)); // Layout para os botões
 
+
+        //Criando botões da aba de Gerenciamento
         JButton btnCadastrar = criarBotao("Cadastrar Produto", new Color(255, 69, 0)); // Vermelho
         JButton btnRemover = criarBotao("Remover Produto", new Color(220, 20, 60)); // Vermelho-escuro
         JButton btnAtualizar = criarBotao("Atualizar Produto", new Color(255, 165, 0)); // Laranja
         JButton btnHistorico = criarBotao("Histórico de Pedidos", new Color(255, 140, 0)); // Laranja
 
+        //Adicionando botões ao Panel de gerenciamento
         gerenciamentoPanel.add(btnCadastrar);
         gerenciamentoPanel.add(btnRemover);
         gerenciamentoPanel.add(btnAtualizar);
@@ -39,13 +48,13 @@ public class FastFoodGUI {
         JPanel operacoesPanel = new JPanel();
         operacoesPanel.setLayout(new GridLayout(4, 1, 10, 10)); // Layout para os botões
 
+        //Criando botões da aba de Operações
         JButton btnListar = criarBotao("Ver Cardápio", new Color(255, 140, 0)); // Laranja
-        JButton btnListarPedido = criarBotao("Ver Pedido", new Color(255, 255, 0)); // Amarelo
-        JButton btnPesquisar = criarBotao("Pesquisar", new Color(255, 69, 0)); // Vermelho
+        JButton btnListarPedido = criarBotao("Ver Pedido", new Color(255, 69, 0)); // Vermelho
 
+        //Adicionando botões ao Panel de Operações
         operacoesPanel.add(btnListar);
         operacoesPanel.add(btnListarPedido);
-        operacoesPanel.add(btnPesquisar);
 
         // Adicionando a aba de Operações ao JTabbedPane
         tabbedPane.addTab("Operações", operacoesPanel);
@@ -60,12 +69,12 @@ public class FastFoodGUI {
         btnAtualizar.addActionListener(_ -> atualizarProduto());
         btnListar.addActionListener(_ -> listarProdutos());
         btnListarPedido.addActionListener(_ -> mostrarPedido());
-        btnPesquisar.addActionListener(_ -> buscarProduto()); // Ação para o botão "Pesquisar"
 
+        //Botando no "ar"
         frame.setVisible(true);
     }
 
-
+    //Função para criação padrão de Botões
     private JButton criarBotao(String texto, Color cor) {
         JButton botao = new JButton(texto);
         botao.setBackground(cor);
@@ -76,6 +85,7 @@ public class FastFoodGUI {
         return botao;
     }
 
+    //JFrame para Cadastro de Produtos + Tratamento de Exceções
     private void abrirCadastro() {
         JFrame cadastroFrame = new JFrame("Cadastrar Produto");
         cadastroFrame.setSize(300, 200);
@@ -131,8 +141,8 @@ public class FastFoodGUI {
         cadastroFrame.setVisible(true);
     }
 
+    //JFrame para saída do Cardápio
     private void listarProdutos() {
-        // Cria um JFrame para o cardápio
         JFrame cardapioFrame = new JFrame("Cardápio");
         cardapioFrame.setSize(400, 300);
         cardapioFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -164,11 +174,37 @@ public class FastFoodGUI {
             }
         }
 
-        //Cria o painel para Pesquisa
+        // Cria o painel para Pesquisar
         JPanel pesquisaPanel = new JPanel();
-        pesquisaPanel.setLayout(new BoxLayout(pesquisaPanel, BoxLayout.Y_AXIS));
+        pesquisaPanel.setLayout(new BorderLayout());
 
+        // Cria um campo de texto para a pesquisa
+        JTextField pesquisaField = new JTextField();
+        pesquisaField.setFont(new Font("Arial", Font.BOLD, 14));
 
+        // Cria um botão para a pesquisa
+        JButton btnPesquisar = criarBotao("Pesquisar", new Color(255, 69, 0)); // Vermelho
+        btnPesquisar.addActionListener(_ -> {
+            String predicado = pesquisaField.getText().trim();
+            if (!predicado.isEmpty()) {
+                List<Produto> produtosEncontrados = cardapioDAO.buscarPorNome(predicado);
+                if (!produtosEncontrados.isEmpty()) {
+                    StringBuilder resultado = new StringBuilder("Produtos encontrados:\n");
+                    for (Produto produto : produtosEncontrados) {
+                        resultado.append(produto.toString()).append("\n");
+                    }
+                    JOptionPane.showMessageDialog(cardapioFrame, resultado.toString());
+                } else {
+                    JOptionPane.showMessageDialog(cardapioFrame, "Nenhum produto encontrado com o critério: " + predicado);
+                }
+            } else {
+                JOptionPane.showMessageDialog(cardapioFrame, "O critério de busca não pode estar vazio.");
+            }
+        });
+
+        // Adiciona o campo de pesquisa e botão de pesquisar
+        pesquisaPanel.add(pesquisaField, BorderLayout.CENTER);
+        pesquisaPanel.add(btnPesquisar, BorderLayout.EAST);
 
         // Adiciona os painéis ao JTabbedPane
         tabbedPane.addTab("Lanches", lanchesPanel);
@@ -189,6 +225,7 @@ public class FastFoodGUI {
         cardapioFrame.setVisible(true);
     }
 
+    //Função para Adicionar produto ao Pedido
     private void selecionarProdutoParaPedido() {
         String[] tipos = {"Lanche", "Bebida"};
         String tipoSelecionado = (String) JOptionPane.showInputDialog(frame, "Selecione o tipo de produto:", "Listar por Tipo", JOptionPane.QUESTION_MESSAGE, null, tipos, tipos[0]);
@@ -208,6 +245,7 @@ public class FastFoodGUI {
         }
     }
 
+    //JFrame para mostrar o Pedido
     private void mostrarPedido() {
         JFrame pedidoFrame = new JFrame("Detalhes do Pedido");
         pedidoFrame.setSize(400, 300);
@@ -215,34 +253,17 @@ public class FastFoodGUI {
 
         JTextArea textoPedido = new JTextArea();
         textoPedido.setEditable(false);
-        textoPedido.setText(pedido.listarProdutos()); // Mostra os produtos e total do pedido
+        textoPedido.setText(pedido.listarProdutos());
 
         JButton btnFinalizarPedido = criarBotao("Finalizar Pedido", new Color(34, 139, 34)); // Verde
-        btnFinalizarPedido.addActionListener(_ -> finalizarPedido(pedidoFrame)); // Passa a janela para o método de finalização
+        btnFinalizarPedido.addActionListener(_ -> finalizarPedido(pedidoFrame));
 
         pedidoFrame.add(new JScrollPane(textoPedido), BorderLayout.CENTER);
         pedidoFrame.add(btnFinalizarPedido, BorderLayout.SOUTH);
         pedidoFrame.setVisible(true);
     }
 
-    private void buscarProduto() {
-        String predicado = JOptionPane.showInputDialog(frame, "Digite o nome ou tipo do produto:");
-        if (predicado != null && !predicado.trim().isEmpty()) {
-            List<Produto> produtosEncontrados = cardapioDAO.buscarPorNome(predicado);
-            if (!produtosEncontrados.isEmpty()) {
-                StringBuilder resultado = new StringBuilder("Produtos encontrados:\n");
-                for (Produto produto : produtosEncontrados) {
-                    resultado.append(produto.toString()).append("\n");
-                }
-                JOptionPane.showMessageDialog(frame, resultado.toString());
-            } else {
-                JOptionPane.showMessageDialog(frame, "Nenhum produto encontrado com o critério: " + predicado);
-            }
-        } else {
-            JOptionPane.showMessageDialog(frame, "O critério de busca não pode estar vazio.");
-        }
-    }
-
+    //Função para atualizar Produtos através de ID
     private void atualizarProduto() {
         String idStr = JOptionPane.showInputDialog(frame, "Digite o ID do produto a atualizar:");
         if (idStr == null || idStr.trim().isEmpty()) {
@@ -260,13 +281,13 @@ public class FastFoodGUI {
 
         Produto produto = cardapioDAO.buscarPorId(id);
         if (produto != null) {
-            String novoNome = JOptionPane.showInputDialog(frame, "Novo nome:", produto.nome);
+            String novoNome = JOptionPane.showInputDialog(frame, "Novo nome:", produto.getNome());
             if (novoNome == null || novoNome.trim().isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "O nome não pode estar vazio.", "Erro", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            String novoPrecoStr = JOptionPane.showInputDialog(frame, "Novo preço:", produto.preco);
+            String novoPrecoStr = JOptionPane.showInputDialog(frame, "Novo preço:", produto.getPreco());
             if (novoPrecoStr == null || novoPrecoStr.trim().isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "O preço não pode estar vazio.", "Erro", JOptionPane.ERROR_MESSAGE);
                 return;
@@ -297,6 +318,7 @@ public class FastFoodGUI {
         }
     }
 
+    //Função para deletar Produtos através de ID
     private void removerProduto() {
         String idStr = JOptionPane.showInputDialog(frame, "Digite o ID do produto a remover:");
         int id = Integer.parseInt(idStr);
@@ -312,6 +334,7 @@ public class FastFoodGUI {
         }
     }
 
+    //Função para Finalizar Pedidos
     private void finalizarPedido(JFrame pedidoFrame) {
         if (pedido.getProdutos().isEmpty()) {
             JOptionPane.showMessageDialog(pedidoFrame, "Não há produtos no pedido.");
@@ -332,7 +355,7 @@ public class FastFoodGUI {
         }
     }
 
-
+    //Função para saída de Histórico de Pedidos
     private void mostrarHistoricoPedidos() {
         JFrame historicoFrame = new JFrame("Histórico de Pedidos");
         historicoFrame.setSize(400, 300);
@@ -351,9 +374,5 @@ public class FastFoodGUI {
 
         historicoFrame.add(new JScrollPane(textoHistorico), BorderLayout.CENTER);
         historicoFrame.setVisible(true);
-    }
-
-    public static void main(String[] args) {
-        new FastFoodGUI();
     }
 }

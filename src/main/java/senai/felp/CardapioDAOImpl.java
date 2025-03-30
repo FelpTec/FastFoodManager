@@ -1,5 +1,10 @@
 package senai.felp;
 
+import senai.felp.objects.Bebida;
+import senai.felp.objects.Lanche;
+import senai.felp.objects.Pedido;
+import senai.felp.objects.Produto;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +18,8 @@ public class CardapioDAOImpl implements CardapioDAO {
             try (Connection conn = ConnectionFactory.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-                stmt.setString(1, produto.nome);
-                stmt.setDouble(2, produto.preco);
+                stmt.setString(1, produto.getNome());
+                stmt.setDouble(2, produto.getPreco());
                 stmt.setString(3, "Lanche");
                 stmt.setBoolean(4, ((Lanche) produto).isVegano());
                 stmt.executeUpdate();
@@ -26,8 +31,8 @@ public class CardapioDAOImpl implements CardapioDAO {
             try (Connection conn = ConnectionFactory.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-                stmt.setString(1, produto.nome);
-                stmt.setDouble(2, produto.preco);
+                stmt.setString(1, produto.getNome());
+                stmt.setDouble(2, produto.getPreco());
                 stmt.setString(3, "Bebida");
                 stmt.setBoolean(4, ((Bebida) produto).isAlcoolica());
                 stmt.executeUpdate();
@@ -72,11 +77,11 @@ public class CardapioDAOImpl implements CardapioDAO {
             try (Connection conn = ConnectionFactory.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-                stmt.setString(1, produto.nome);
-                stmt.setDouble(2, produto.preco);
+                stmt.setString(1, produto.getNome());
+                stmt.setDouble(2, produto.getPreco());
                 stmt.setString(3, "Lanche");
                 stmt.setBoolean(4, ((Lanche) produto).isVegano());
-                stmt.setInt(5, produto.id);
+                stmt.setInt(5, produto.getId());
                 stmt.executeUpdate();
             } catch (SQLException e) {
                 System.out.println("Erro ao atualizar produto: " + e.getMessage());
@@ -86,11 +91,11 @@ public class CardapioDAOImpl implements CardapioDAO {
             try (Connection conn = ConnectionFactory.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-                stmt.setString(1, produto.nome);
-                stmt.setDouble(2, produto.preco);
+                stmt.setString(1, produto.getNome());
+                stmt.setDouble(2, produto.getPreco());
                 stmt.setString(3, "Bebida");
                 stmt.setBoolean(4, ((Bebida) produto).isAlcoolica());
-                stmt.setInt(5, produto.id);
+                stmt.setInt(5, produto.getId());
                 stmt.executeUpdate();
             } catch (SQLException e) {
                 System.out.println("Erro ao atualizar produto: " + e.getMessage());

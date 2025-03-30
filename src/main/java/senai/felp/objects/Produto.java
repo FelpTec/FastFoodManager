@@ -1,4 +1,4 @@
-package senai.felp;
+package senai.felp.objects;
 
 public abstract class Produto {
     protected int id;
@@ -8,6 +8,26 @@ public abstract class Produto {
     public Produto(int id, String nome, double preco) {
         this.id = id;
         this.nome = nome;
+        this.preco = preco;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public double getPreco() {
+        return preco;
+    }
+
+    public void setPreco(double preco) {
         this.preco = preco;
     }
 

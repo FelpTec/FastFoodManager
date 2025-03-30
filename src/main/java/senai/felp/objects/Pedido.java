@@ -1,4 +1,4 @@
-package senai.felp;
+package senai.felp.objects;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package senai.felp;
+package senai.felp.objects;
 
 public class Lanche extends Produto {
     private final boolean isVegano;

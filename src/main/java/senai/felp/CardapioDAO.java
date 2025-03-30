@@ -1,12 +1,13 @@
 package senai.felp;
 
+import senai.felp.objects.Pedido;
+import senai.felp.objects.Produto;
+
 import java.util.List;
 
 public interface CardapioDAO {
 
-
-
-    //CRUD
+    //INTERFACE FASTFOOD MANAGER CRUD
 
     //CREATE
     void adicionar(Produto produto);
