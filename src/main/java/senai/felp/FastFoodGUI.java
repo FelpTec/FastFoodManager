@@ -6,10 +6,12 @@ import senai.felp.objects.Lanche;
 import senai.felp.objects.Pedido;
 import senai.felp.objects.Produto;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.LineSeparator;
+import com.itextpdf.kernel.pdf.canvas.draw.SolidLine;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
@@ -457,34 +459,23 @@ public class FastFoodGUI {
 
     private void gerarRelatorioPDF(List<String> historico) {
         String caminhoArquivo = "historico_pedidos.pdf"; // Caminho do arquivo PDF
-        try (PDDocument document = new PDDocument()) {
-            PDPage page = new PDPage();
-            document.addPage(page);
+        try {
+            PdfWriter writer = new PdfWriter(caminhoArquivo);
+            PdfDocument pdf = new PdfDocument(writer);
+            Document document = new Document(pdf);
 
-            PDPageContentStream contentStream = new PDPageContentStream(document, page);
-            contentStream.setFont(PDType1Font.TIMES_ROMAN, 12);
-            contentStream.beginText();
-            contentStream.newLineAtOffset(50, 750); // Posição inicial do texto
-
-            contentStream.showText("Histórico de Pedidos");
-            contentStream.newLineAtOffset(0, -20); // Nova linha
-            contentStream.showText("======================================");
-            contentStream.newLineAtOffset(0, -20); // Nova linha
+            document.add(new Paragraph("Histórico de Pedidos").setFontSize(18));
+            document.add(new LineSeparator(new SolidLine())); // Usando SolidLine para a linha separadora
 
             for (String pedido : historico) {
-                contentStream.showText(pedido);
-                contentStream.newLineAtOffset(0, -20); // Nova linha
-                contentStream.showText("======================================");
-                contentStream.newLineAtOffset(0, -20); // Nova linha
+                document.add(new Paragraph(pedido));
+                document.add(new LineSeparator(new SolidLine())); // Usando SolidLine para a linha separadora
             }
 
-            contentStream.endText();
-            contentStream.close();
-
-            document.save(caminhoArquivo);
-            JOptionPane.showMessageDialog(frame, "Relatório gerado com sucesso: " + caminhoArquivo);
+            document.close();
+            JOptionPane.showMessageDialog(null, "Relatório PDF gerado com sucesso: " + caminhoArquivo);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(frame, "Erro ao gerar relatório: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Erro ao gerar relatório PDF: " + e.getMessage());
         }
     }
 }
