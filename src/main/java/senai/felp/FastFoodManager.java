@@ -1,7 +1,9 @@
 package senai.felp;
 
+import javax.swing.*;
+
 public class FastFoodManager {
     public static void main(String[] ignoredArgs) {
-        new FastFoodGUI();
+        SwingUtilities.invokeLater(() -> new LoginScreen().setVisible(true));
     }
 }

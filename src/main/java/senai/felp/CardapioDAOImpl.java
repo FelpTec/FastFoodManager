@@ -179,13 +179,14 @@ public class CardapioDAOImpl implements CardapioDAO {
     public void adicionarHistoricoPedido(Pedido pedido, String formaPagamento) {
         String produtos = pedido.listarProdutos(); // Obtém a lista de produtos do pedido
         double total = pedido.calcularTotal(); // Calcula o total do pedido
-        String sql = "INSERT INTO historico_pedidos (produtos, total, forma_pagamento) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO historico_pedidos (produtos, total, forma_pagamento, nome_usuario) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, produtos);
             pstmt.setDouble(2, total);
             pstmt.setString(3, formaPagamento);
+            pstmt.setString(4, pedido.getNomeUsuario());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Erro ao adicionar pedido ao histórico: " + e.getMessage());
@@ -202,11 +203,13 @@ public class CardapioDAOImpl implements CardapioDAO {
                 String produtos = rs.getString("produtos");
                 String formaPagamento = rs.getString("forma_pagamento");
                 String data = rs.getString("data");
+                String nome = rs.getString("nome_usuario");
                 String pedidoFormatado = String.format("=================================================\n" +
                         "Produtos: %s\n" +
                         "Forma de Pagamento: %s |\n" +
                         "Data: %s|\n" +
-                        "=================================================\n", produtos, formaPagamento, data);
+                        "Nome: %s\n" +
+                        "=================================================\n", produtos, formaPagamento, data, nome);
                 pedidos.add(pedidoFormatado);
             }
         } catch (SQLException e) {

@@ -19,10 +19,10 @@ import java.util.List;
 public class FastFoodGUI {
     private final JFrame frame;
     private final CardapioDAO cardapioDAO = new CardapioDAOImpl();
-    private Pedido pedido = new Pedido();
+    private Pedido pedido = new Pedido(LoginScreen.getNomeUsuario());
 
     //Janela Principal
-    public FastFoodGUI() {
+    public FastFoodGUI(String usuarioLogado) {
         frame = new JFrame("Fast Food Manager");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(600, 400);
@@ -65,6 +65,12 @@ public class FastFoodGUI {
 
         // Adicionando a aba de Operações ao JTabbedPane
         tabbedPane.addTab("Operações", operacoesPanel);
+
+        JPanel userPanel = new JPanel();
+
+        userPanel.add(new JLabel("Usuário Logado: " + usuarioLogado));
+
+        tabbedPane.addTab("Usuário", userPanel);
 
         // Adicionando o JTabbedPane ao JFrame
         frame.add(tabbedPane, BorderLayout.CENTER);
@@ -415,7 +421,7 @@ public class FastFoodGUI {
             // Salvar o pedido no histórico
             cardapioDAO.adicionarHistoricoPedido(pedido, pagamentoSelecionado);
 
-            pedido = new Pedido(); // Reseta o pedido após finalização
+            pedido = new Pedido(LoginScreen.getNomeUsuario()); // Reseta o pedido após finalização
             pedidoFrame.dispose(); // Fecha a janela do pedido
         }
     }
@@ -464,7 +470,8 @@ public class FastFoodGUI {
             PdfDocument pdf = new PdfDocument(writer);
             Document document = new Document(pdf);
 
-            document.add(new Paragraph("Histórico de Pedidos").setFontSize(18));
+            document.add(new Paragraph("Histórico de Pedidos")
+                    .setFontSize(18));
             document.add(new LineSeparator(new SolidLine())); // Usando SolidLine para a linha separadora
 
             for (String pedido : historico) {

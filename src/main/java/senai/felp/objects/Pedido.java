@@ -5,9 +5,11 @@ import java.util.List;
 
 public class Pedido {
     private final List<Produto> produtos;
+    private String nomeUsuario;
 
-    public Pedido() {
+    public Pedido(String nomeUsuario) {
         this.produtos = new ArrayList<>();
+        this.nomeUsuario = nomeUsuario;
     }
 
     public void adicionarProduto(Produto produto) {
@@ -37,5 +39,13 @@ public class Pedido {
             total += produto.preco; // Soma o preço de cada produto
         }
         return total;
+    }
+
+    public String getNomeUsuario() {
+        return nomeUsuario;
+    }
+
+    public void setNomeUsuario(String nomeUsuario) {
+        this.nomeUsuario = nomeUsuario;
     }
 }
